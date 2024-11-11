@@ -2,20 +2,16 @@ import streamlit as st
 import json
 import numpy as np
 import tensorflow as tf
-import requests
-import io
 from tensorflow.keras.preprocessing import image
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
-# Load the model from GitHub
-model_url = 'https://raw.githubusercontent.com/Jethro-Malabar/Trial/main/bantayBakhaw_modelV3.h5'
-model_response = requests.get(model_url)
-loaded_model = tf.keras.models.load_model(io.BytesIO(model_response.content))
+# Load the saved model
+model_path = 'C:/Users/Lenovo/Mangrove_Leaves/bantayBakhaw_modelV3.h5'
+loaded_model = tf.keras.models.load_model(model_path)
 
-# Load class indices from JSON file on GitHub
-json_url = 'https://raw.githubusercontent.com/Jethro-Malabar/Trial/main/class_indices.json'
-json_response = requests.get(json_url)
-class_indices = json.loads(json_response.content)
+# Load class indices from the JSON file
+with open('C:/Users/Lenovo/Mangrove_Leaves/class_indices.json', 'r') as json_file:
+    class_indices = json.load(json_file)
 
 class_names = list(class_indices.keys())  # Get the class names in order
 
@@ -32,9 +28,16 @@ treatment_suggestions = {
 def predict_image(image):
     img_array = preprocess_image(image)
     predictions = loaded_model.predict(img_array)
+    
+    # Assume that `loaded_model` also outputs bounding box coordinates (if not, add a model capable of this).
     predicted_class = np.argmax(predictions, axis=1)[0]
     predicted_class_name = class_names[predicted_class]
     confidence = np.max(predictions) * 100
+    
+    # Example of detected boxes, format: [x, y, width, height] (if available from the model)
+    # Here, assume these boxes are returned from the model along with class predictions
+   
+    
     return predicted_class_name, confidence
 
 def preprocess_image(image, target_size=(224, 224)):
@@ -43,6 +46,7 @@ def preprocess_image(image, target_size=(224, 224)):
     img_array = np.expand_dims(img_array, axis=0)
     img_array = tf.keras.applications.efficientnet.preprocess_input(img_array)
     return img_array
+
 
 # Streamlit app layout
 st.set_page_config(page_title="Bakhaw Disease Classifier", layout="centered")
@@ -62,6 +66,8 @@ if uploaded_file is not None:
     st.write(f"**Disease Detected:** {predicted_class_name}")
     st.write(f"**Confidence Score:** {confidence:.2f}%")
     
+  
+        
     if st.button("Show Suggested Treatment"):
-        st.write(f"**Suggested Treatment for {predicted_class_name}:**")
-        st.write(treatment_suggestions[predicted_class_name])
+            st.write(f"**Suggested Treatment for {predicted_class_name}:**")
+            st.write(treatment_suggestions[predicted_class_name])
