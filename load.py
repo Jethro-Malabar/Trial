@@ -6,11 +6,11 @@ from tensorflow.keras.preprocessing import image
 from PIL import Image, ImageDraw, ImageFont
 
 # Load the saved model
-model_path = 'C:/Users/Lenovo/Mangrove_Leaves/bantayBakhaw_modelV3.h5'
+model_path = 'bantayBakhaw_modelV3.h5'
 loaded_model = tf.keras.models.load_model(model_path)
 
 # Load class indices from the JSON file
-with open('C:/Users/Lenovo/Mangrove_Leaves/class_indices.json', 'r') as json_file:
+with open('class_indices.json', 'r') as json_file:
     class_indices = json.load(json_file)
 
 class_names = list(class_indices.keys())  # Get the class names in order
